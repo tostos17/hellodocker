@@ -31,3 +31,17 @@ jobs:
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/hellodocker:latest
 
+      - name: Set up SSH key
+        run: |
+            mkdir -p ~/.ssh
+            echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy Docker container
+        run: |
+                ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+                  docker stop hd || true
+                  docker rm hd || true
+                  docker run -d -p 80:8080 --name hd hellodocker
+                EOF
