@@ -49,14 +49,14 @@ jobs:
                   --protocol tcp --port 22 \
                   --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
-            - name: Set up SSH key
-              run: |
+      - name: Set up SSH key
+        run: |
                 mkdir -p ~/.ssh
                 echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
                 chmod 600 ~/.ssh/id_rsa
                 ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-            - name: SSH and deploy Docker container
-              run: |
+      - name: SSH and deploy Docker container
+        run: |
                 ssh -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
                   echo "Stopping container..."
                   sudo docker stop hd || true
@@ -71,9 +71,9 @@ jobs:
                   sudo docker run -d --name hd -p 80:8080 tostos/hellodocker
                 EOF
 
-            - name: Remove runner IP from EC2 security group
-              if: always()
-              run: |
+      - name: Remove runner IP from EC2 security group
+        if: always()
+        run: |
                 aws ec2 revoke-security-group-ingress \
                   --group-id ${{ secrets.EC2_SECURITY_GROUP_ID }} \
                   --protocol tcp --port 22 \
