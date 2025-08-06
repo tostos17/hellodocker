@@ -19,6 +19,6 @@ public class Main {
 
     @GetMapping
     public String hello() {
-        return "hello docker-aws integration";
+        return "<h1>hello docker-aws integration</h1>";
     }
 }
